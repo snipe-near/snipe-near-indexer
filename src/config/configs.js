@@ -10,4 +10,10 @@ module.exports = {
 			(process.env.START_BLOCK_HEIGHT ? parseInt(process.env.START_BLOCK_HEIGHT) : null) ||
 			77632946,
 	},
+	marketplaceContractIds: {
+		paras:
+			process.env.NODE_ENV === 'mainnet'
+				? 'marketplace.paras.near'
+				: 'paras-marketplace-v1.testnet',
+	},
 }
