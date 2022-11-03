@@ -1,4 +1,5 @@
 module.exports = {
+	port: process.env.PORT || 5000,
 	nodeEnv: process.env.NODE_ENV || 'testnet',
 	redisUrl: process.env.REDIS_URL,
 	mongoUrl: process.env.MONGO_URL,

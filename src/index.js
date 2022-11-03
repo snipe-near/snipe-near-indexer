@@ -28,9 +28,8 @@ const main = async () => {
 		res.send('ok')
 	})
 
-	const port = process.env.PORT || 5000
-	server.listen(port)
-	console.log('App is running on port: ', port)
+	server.listen(configs.port)
+	console.log('App is running on port: ', configs.port)
 
 	await startStream(configs.lakeConfig, service.handleStremerMessage.bind(service))
 	console.log('Indexer is running')

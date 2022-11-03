@@ -7,6 +7,7 @@ const activityTypeEnum = Object.freeze({
 class Service {
 	constructor(repo, indexerQueue) {
 		this.repo = repo
+		this.indexerQueue = indexerQueue
 	}
 
 	_newListingData(marketplaceContractId, nftContractId, tokenId, ownerId, price, rawData) {
@@ -114,7 +115,10 @@ class Service {
 			return
 		}
 
-		console.log(results)
+		console.log('Add to indexer queue', results)
+		await this.indexerQueue.add({
+			activities: results,
+		})
 	}
 }
 
