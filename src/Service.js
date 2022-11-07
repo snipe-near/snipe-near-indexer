@@ -86,9 +86,10 @@ class Service {
 					snipeId: data.data.snipe_id,
 					accountId: data.data.account_id,
 					contractId: data.data.contract_id,
-					tokenId: data.data.token_id,
+					tokenId: data.data.token_id || null,
 					deposit: data.data.deposit,
 					status: data.data.status.toLowerCase(),
+					memo: data.data.memo || null,
 				},
 			}
 		}
