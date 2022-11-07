@@ -55,7 +55,7 @@ class Service {
 		}
 	}
 
-	_checkParasListing(receiverId, data) {
+	_watchParasListing(receiverId, data) {
 		if (receiverId !== configs.marketplaceContractIds.paras) return false
 		if (data.type !== 'add_market_data') return false
 		return this._newListingData(
@@ -78,7 +78,7 @@ class Service {
 		)
 		const data = this._parseLog(log)
 
-		const parasListing = this._checkParasListing(receiverId, data)
+		const parasListing = this._watchParasListing(receiverId, data)
 		if (parasListing) return composeListingResult(parasListing)
 
 		return false
