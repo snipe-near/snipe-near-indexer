@@ -2,6 +2,9 @@ const configs = require('./config/configs')
 
 const activityTypeEnum = Object.freeze({
 	listing: 'listing',
+	snipe: 'snipe',
+	deleteSnipe: 'delete_snipe',
+	buyToken: 'buy_token',
 })
 
 class Service {
@@ -41,16 +44,16 @@ class Service {
 		return this._parseEVENTJSON(log)
 	}
 
-	_newComposeListingResult(blockHeight, timestamp, receiptId, predecessorId, receiverId) {
-		return (listingData) => {
+	_newComposeResult(blockHeight, timestamp, receiptId, predecessorId, receiverId) {
+		return (type, data) => {
 			return {
 				blockHeight,
 				timestamp,
 				receiptId,
 				predecessorId,
 				receiverId,
-				type: activityTypeEnum.listing,
-				data: listingData,
+				type,
+				data,
 			}
 		}
 	}
@@ -58,18 +61,64 @@ class Service {
 	_watchParasListing(receiverId, data) {
 		if (receiverId !== configs.marketplaceContractIds.paras) return false
 		if (data.type !== 'add_market_data') return false
-		return this._newListingData(
-			receiverId,
-			data.params.nft_contract_id,
-			data.params.token_id,
-			data.params.owner_id,
-			data.params.price,
-			data
-		)
+
+		return {
+			type: activityTypeEnum.listing,
+			result: this._newListingData(
+				receiverId,
+				data.params.nft_contract_id,
+				data.params.token_id,
+				data.params.owner_id,
+				data.params.price,
+				data
+			),
+		}
+	}
+
+	_watchSnipeNear(receiverId, data) {
+		if (receiverId !== configs.snipeNearContractId) return false
+		if (data.standard !== 'snipe_near') return false
+
+		if (data.event === activityTypeEnum.snipe) {
+			return {
+				type: activityTypeEnum.snipe,
+				result: {
+					snipeId: data.data.snipe_id,
+					accountId: data.data.account_id,
+					contractId: data.data.contract_id,
+					tokenId: data.data.token_id,
+					deposit: data.data.deposit,
+					status: data.data.status.toLowerCase(),
+				},
+			}
+		}
+
+		if (data.event === activityTypeEnum.deleteSnipe) {
+			return {
+				type: activityTypeEnum.deleteSnipe,
+				result: {
+					snipeId: data.data.snipe_id,
+					accountId: data.data.account_id,
+				},
+			}
+		}
+
+		if (data.event === activityTypeEnum.buyToken) {
+			return {
+				type: activityTypeEnum.buyToken,
+				result: {
+					marketplaceContractId: data.data.marketplace_contract_id,
+					price: data.data.price,
+					snipeId: data.data.snipe_id,
+					tokenId: data.data.token_id,
+					status: data.data.status.toLowerCase(),
+				},
+			}
+		}
 	}
 
 	_processLogs(blockHeight, timestamp, receiptId, predecessorId, receiverId, log) {
-		const composeListingResult = this._newComposeListingResult(
+		const composeResult = this._newComposeResult(
 			blockHeight,
 			timestamp,
 			receiptId,
@@ -78,8 +127,13 @@ class Service {
 		)
 		const data = this._parseLog(log)
 
+		// marketplaces
 		const parasListing = this._watchParasListing(receiverId, data)
-		if (parasListing) return composeListingResult(parasListing)
+		if (parasListing) return composeResult(parasListing.type, parasListing.result)
+
+		// snipe near
+		const snipeNear = this._watchSnipeNear(receiverId, data)
+		if (snipeNear) return composeResult(snipeNear.type, snipeNear.result)
 
 		return false
 	}
@@ -88,6 +142,7 @@ class Service {
 		const blockHeight = streamerMessage.block.header.height
 		const timestamp = parseInt(streamerMessage.block.header.timestamp / 10 ** 6)
 		const shards = streamerMessage.shards
+		console.log('BlockHeight: ', blockHeight)
 
 		const results = []
 		for (const shard of shards) {
