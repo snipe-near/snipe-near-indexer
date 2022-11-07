@@ -17,4 +17,5 @@ module.exports = {
 				? 'marketplace.paras.near'
 				: 'paras-marketplace-v1.testnet',
 	},
+	snipeNearContractId: process.env.SNIPE_NEAR_CONTRACT_ID,
 }
