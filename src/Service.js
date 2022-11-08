@@ -113,6 +113,7 @@ class Service {
 					snipeId: data.data.snipe_id,
 					tokenId: data.data.token_id,
 					status: data.data.status.toLowerCase(),
+					accountId: data.data.account_id,
 				},
 			}
 		}
