@@ -75,6 +75,24 @@ class Service {
 		}
 	}
 
+	_watchMintbaseListing(receiverId, data) {
+		if (receiverId !== configs.marketplaceContractIds.mintbase) return false
+		if (data.event !== 'nft_list') return false
+		if (data.data.currency !== 'near') return false
+
+		return {
+			type: activityTypeEnum.listing,
+			result: this._newListingData(
+				receiverId,
+				data.data.nft_contract_id,
+				data.data.nft_token_id,
+				data.data.nft_owner_id,
+				data.data.price,
+				data
+			),
+		}
+	}
+
 	_watchSnipeNear(receiverId, data) {
 		if (receiverId !== configs.snipeNearContractId) return false
 		if (data.standard !== 'snipe_near') return false
@@ -132,6 +150,8 @@ class Service {
 		// marketplaces
 		const parasListing = this._watchParasListing(receiverId, data)
 		if (parasListing) return composeResult(parasListing.type, parasListing.result)
+		const mintbaseListing = this._watchMintbaseListing(receiverId, data)
+		if (mintbaseListing) return composeResult(mintbaseListing.type, mintbaseListing.result)
 
 		// snipe near
 		const snipeNear = this._watchSnipeNear(receiverId, data)

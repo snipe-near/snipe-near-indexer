@@ -16,6 +16,10 @@ module.exports = {
 			process.env.NODE_ENV === 'mainnet'
 				? 'marketplace.paras.near'
 				: 'paras-marketplace-v1.testnet',
+		mintbase:
+			process.env.NODE_ENV === 'mainnet'
+				? 'market.mintbase1.near'
+				: 'market-v2-beta.mintspace2.testnet',
 	},
 	snipeNearContractId: process.env.SNIPE_NEAR_CONTRACT_ID,
 }
