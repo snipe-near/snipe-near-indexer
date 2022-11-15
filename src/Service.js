@@ -7,19 +7,33 @@ const activityTypeEnum = Object.freeze({
 	buyToken: 'buy_token',
 })
 
+const marketplaceTypeEnum = Object.freeze({
+	paras: 'paras',
+	mintbase: 'mintbase',
+})
+
 class Service {
 	constructor(repo, indexerQueue) {
 		this.repo = repo
 		this.indexerQueue = indexerQueue
 	}
 
-	_newListingData(marketplaceContractId, nftContractId, tokenId, ownerId, price, rawData) {
+	_newListingData(
+		marketplaceContractId,
+		nftContractId,
+		tokenId,
+		ownerId,
+		price,
+		rawData,
+		marketplaceType
+	) {
 		return {
 			marketplaceContractId,
 			nftContractId,
 			tokenId,
 			ownerId,
 			price,
+			marketplaceType,
 			_raw: rawData,
 		}
 	}
@@ -70,13 +84,15 @@ class Service {
 				data.params.token_id,
 				data.params.owner_id,
 				data.params.price,
-				data
+				data,
+				marketplaceTypeEnum.paras
 			),
 		}
 	}
 
 	_watchMintbaseListing(receiverId, data) {
-		if (receiverId !== configs.marketplaceContractIds.mintbase) return false
+		const receiverRegex = new RegExp(configs.marketplaceContractIds.mintbaseRegex)
+		if (!receiverRegex.test(receiverId)) return false
 		if (data.event !== 'nft_list') return false
 		if (data.data.currency !== 'near') return false
 
@@ -88,7 +104,8 @@ class Service {
 				data.data.nft_token_id,
 				data.data.nft_owner_id,
 				data.data.price,
-				data
+				data,
+				marketplaceTypeEnum.mintbase
 			),
 		}
 	}

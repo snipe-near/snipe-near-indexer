@@ -20,6 +20,8 @@ module.exports = {
 			process.env.NODE_ENV === 'mainnet'
 				? 'market.mintbase1.near'
 				: 'market-v2-beta.mintspace2.testnet',
+		mintbaseRegex:
+			process.env.NODE_ENV === 'mainnet' ? 'mintbase1.near' : `(.+?)\.mintspace2\.testnet$`,
 	},
 	snipeNearContractId: process.env.SNIPE_NEAR_CONTRACT_ID,
 }
